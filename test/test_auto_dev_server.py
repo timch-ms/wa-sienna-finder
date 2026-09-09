@@ -133,6 +133,80 @@ class AutoDevCacheTests(TestCase):
         self.assertEqual(cache["lastAttemptCalls"], 2)
         self.assertEqual(cache["listingCount"], 2)
 
+    def test_year_partition_never_exceeds_call_limit(self):
+        current_year = datetime.now().year
+        server.SITE_CONFIG_FILE.write_text(
+            json.dumps(
+                {
+                    "make": "Tesla",
+                    "model": "Model Y",
+                    "minimumYear": current_year,
+                    "queryYearsSeparately": True,
+                    "officialDealerNamePatterns": ["Tesla"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        years = []
+
+        def fetcher(_key, _page, config):
+            years.append(config["year"])
+            return {"total": 0, "data": []}
+
+        cache = server.refresh_cache(
+            fetcher=fetcher,
+            date="2026-09-08",
+            api_key="test",
+            max_calls=1,
+        )
+
+        self.assertEqual(years, [current_year])
+        self.assertEqual(cache["lastAttemptCalls"], 1)
+        self.assertIn("configured maximum of 1", cache["refreshError"])
+
+    def test_year_partition_rejects_implausible_drop(self):
+        current_year = datetime.now().year
+        server.SITE_CONFIG_FILE.write_text(
+            json.dumps(
+                {
+                    "make": "Tesla",
+                    "model": "Model Y",
+                    "minimumYear": current_year,
+                    "queryYearsSeparately": True,
+                    "officialDealerNamePatterns": ["Tesla"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        existing = server.empty_cache()
+        existing.update(
+            {
+                "lastRefreshDate": "2026-09-07",
+                "listingCount": 10,
+                "listings": [
+                    {"vin": f"WB523CF00000000{i:02d}", "year": current_year, "isNew": False}
+                    for i in range(10)
+                ],
+            }
+        )
+        server.write_cache(existing)
+
+        def fetcher(_key, _page, config):
+            return {"total": 0, "data": []} if config["year"] == current_year else {
+                "total": 0,
+                "data": [],
+            }
+
+        cache = server.refresh_cache(
+            fetcher=fetcher,
+            date="2026-09-08",
+            api_key="test",
+            max_calls=10,
+        )
+
+        self.assertIn(f"Year {current_year} returned only 0 results", cache["refreshError"])
+        self.assertEqual(cache["listingCount"], 10)
+
     def test_next_day_marks_only_unseen_vins_new(self):
         first_vins = ["WB523CF0000000001", "WB523CF0000000002"]
         next_vins = ["WB523CF0000000002", "WB523CF0000000003"]

@@ -114,11 +114,12 @@ def refresh_snapshot(
     original_export_destination = exporter.DESTINATION
     try:
         server.CACHE_FILE = cache_file
+        config = server.read_site_config()
         refreshed = server.refresh_cache(
             fetcher=fetcher,
             date=date,
             api_key=api_key,
-            max_calls=MAX_CALLS,
+            max_calls=config.get("maxApiCalls", MAX_CALLS),
         )
         state["lastAttemptCalls"] = refreshed.get("lastAttemptCalls", 0)
         state["lastError"] = refreshed.get("refreshError")

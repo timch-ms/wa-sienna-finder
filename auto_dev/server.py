@@ -356,11 +356,28 @@ def refresh_cache(fetcher=None, date=None, api_key=None, max_calls=None):
 
                 raw_items = []
                 total = 0
+                previous_year_counts = {}
+                for listing in cache.get("listings", []):
+                    year = listing.get("year")
+                    previous_year_counts[year] = previous_year_counts.get(year, 0) + 1
                 for query_config in query_configs:
+                    if max_calls is not None and calls >= max_calls:
+                        raise ValueError(
+                            f"Refresh requires more than the configured maximum of "
+                            f"{max_calls} calls."
+                        )
                     calls += 1
                     first = fetcher(api_key, 1, query_config)
                     query_items = list(first.get("data") or [])
                     query_total = int(first.get("total") or len(query_items))
+                    query_year = query_config.get("year")
+                    previous_year_count = previous_year_counts.get(query_year, 0)
+                    minimum_year_count = max(1, int(previous_year_count * 0.5))
+                    if query_year and previous_year_count and query_total < minimum_year_count:
+                        raise ValueError(
+                            f"Year {query_year} returned only {query_total} results; "
+                            f"at least {minimum_year_count} were required."
+                        )
                     page_size = len(query_items)
                     page_count = max(1, math.ceil(query_total / page_size)) if page_size else 1
                     required_calls = calls + page_count - 1
@@ -371,6 +388,11 @@ def refresh_cache(fetcher=None, date=None, api_key=None, max_calls=None):
                         )
 
                     for page in range(2, page_count + 1):
+                        if max_calls is not None and calls >= max_calls:
+                            raise ValueError(
+                                f"Refresh requires more than the configured maximum of "
+                                f"{max_calls} calls."
+                            )
                         calls += 1
                         response = fetcher(api_key, page, query_config)
                         query_items.extend(response.get("data") or [])
