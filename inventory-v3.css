@@ -1,0 +1,128 @@
+.inventory-hero {
+  background: linear-gradient(110deg, #101820 10%, #173653 58%, #1c69d4 160%);
+}
+
+.cache-notice {
+  padding: 12px clamp(20px, 5vw, 76px);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cache-ok { background: var(--success); }
+.cache-error { background: #9c5200; }
+.inventory-layout {
+  grid-template-columns: 310px minmax(0, 1fr);
+  max-width: 2400px;
+}
+.inventory-layout .filters {
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+}
+.inventory-layout .vehicle-grid {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+.inventory-layout .price-row { flex-wrap: wrap; }
+.compact-check { margin-top: 14px; padding-top: 14px; }
+
+.new-badge {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  padding: 6px 10px;
+  color: #fff;
+  background: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.history-row {
+  display: flex;
+  min-height: 45px;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 7px;
+  padding-top: 14px;
+}
+
+.status-pill {
+  padding: 4px 7px;
+  color: #444;
+  background: #e8e8e8;
+  font-size: 12px;
+}
+
+.status-pill.positive {
+  color: #0f5c37;
+  background: #dcefe5;
+}
+
+.status-pill.warning {
+  color: #7d4200;
+  background: #fae4ca;
+}
+
+.info-link.disabled {
+  color: #666;
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+.inventory-layout .listing-actions {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: stretch;
+  justify-content: end;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.inventory-layout .listing-actions a { flex: 1 1 130px; }
+
+.carfax-link {
+  padding: 11px 13px;
+  border: 2px solid #262626;
+  color: white;
+  background: #262626;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.carfax-link:hover {
+  color: white;
+  background: #000;
+}
+
+.cache-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.cache-stats > div {
+  display: grid;
+  gap: 3px;
+  padding: 16px;
+  background: #fff;
+}
+
+.cache-stats small { color: var(--muted); }
+.cache-stats strong { font-size: 20px; }
+
+@media (max-width: 1000px) {
+  .inventory-layout { grid-template-columns: 1fr; }
+  .inventory-layout .filters {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 720px) {
+  .cache-stats { grid-template-columns: repeat(2, 1fr); }
+  .inventory-layout .listing-actions { justify-content: stretch; }
+  .inventory-layout .listing-actions a { flex: 1; }
+}

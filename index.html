@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta id="site-description" name="description" content="Used vehicle listings in Washington from a daily inventory snapshot.">
+  <title>WA iX Finder</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="inventory-v3.css">
+</head>
+<body>
+  <header class="site-header">
+    <a id="brand-link" class="brand" href="./" aria-label="Vehicle finder home">
+      <span id="brand-mark" class="brand-mark">WA</span>
+      <span id="brand-name">WA Finder</span>
+    </a>
+    <span class="state-label">Washington State · Static snapshot</span>
+  </header>
+
+  <main>
+    <section class="hero inventory-hero">
+      <p class="eyebrow">USED VEHICLE INVENTORY</p>
+      <h1 id="hero-title">Washington used vehicle listings</h1>
+      <p>One ad-free view published from a daily Washington inventory snapshot.</p>
+    </section>
+
+    <div id="cache-notice" class="cache-notice" role="status"></div>
+
+    <section class="inventory-shell inventory-layout">
+      <aside class="filters" aria-label="Inventory filters">
+        <div class="filter-heading">
+          <h2>Filter inventory</h2>
+          <button id="clear-filters" class="text-button" type="button">Clear</button>
+        </div>
+
+        <label for="year">Year</label>
+        <select id="year"><option value="">All years</option></select>
+
+        <label for="dealership">Dealership</label>
+        <select id="dealership"><option value="">All dealerships</option></select>
+
+        <label for="trim">Trim</label>
+        <select id="trim"><option value="">All trims</option></select>
+
+        <label for="mileage">Maximum mileage</label>
+        <select id="mileage">
+          <option value="">Any mileage</option>
+          <option value="5000">5,000 miles</option>
+          <option value="10000">10,000 miles</option>
+          <option value="25000">25,000 miles</option>
+          <option value="50000">50,000 miles</option>
+        </select>
+
+        <label for="price">Maximum price</label>
+        <select id="price">
+          <option value="">Any price</option>
+          <option value="40000">$40,000</option>
+          <option value="50000">$50,000</option>
+          <option value="60000">$60,000</option>
+          <option value="75000">$75,000</option>
+        </select>
+
+        <label for="color">Exterior color</label>
+        <select id="color"><option value="">All exterior colors</option></select>
+
+        <label for="interior-color">Interior color</label>
+        <select id="interior-color"><option value="">All interior colors</option></select>
+
+        <label for="usage">Prior usage</label>
+        <select id="usage"><option value="">All usage types</option></select>
+
+        <label for="accident-history">Accident history</label>
+        <select id="accident-history">
+          <option value="">Any accident history</option>
+          <option value="none">No accidents reported</option>
+          <option value="reported">Accident(s) reported</option>
+          <option value="unknown">History unavailable</option>
+        </select>
+
+        <label for="ownership">Ownership history</label>
+        <select id="ownership">
+          <option value="">Any ownership history</option>
+          <option value="one">One owner</option>
+          <option value="not-one">Not one-owner</option>
+          <option value="unknown">History unavailable</option>
+        </select>
+
+        <label for="certification">Certification</label>
+        <select id="certification">
+          <option value="">Any certification</option>
+          <option value="cpo">Certified pre-owned</option>
+          <option value="not-cpo">Not CPO</option>
+        </select>
+
+        <label for="recency">First indexed</label>
+        <select id="recency">
+          <option value="">Any listing age</option>
+          <option value="7">Within 7 days</option>
+          <option value="30">Within 30 days</option>
+          <option value="60">Within 60 days</option>
+        </select>
+
+        <label for="photos">Minimum photo count</label>
+        <select id="photos">
+          <option value="">Any photo count</option>
+          <option value="10">10+ photos</option>
+          <option value="20">20+ photos</option>
+          <option value="30">30+ photos</option>
+        </select>
+
+        <label class="check-row" for="brand-dealer">
+          <input id="brand-dealer" type="checkbox">
+          <span><strong id="dealer-only-label">Brand dealers only</strong><small id="dealer-only-description">Hide independent and other-brand dealers</small></span>
+        </label>
+
+        <label class="check-row compact-check" for="new-today">
+          <input id="new-today" type="checkbox">
+          <span><strong>New in latest refresh</strong></span>
+        </label>
+      </aside>
+
+      <section class="results" aria-live="polite">
+        <div class="results-header">
+          <div>
+            <p id="results-eyebrow" class="eyebrow">USED VEHICLES · WASHINGTON</p>
+            <h2><span id="result-count">0</span> vehicles</h2>
+          </div>
+          <label class="sort-label" for="sort">
+            Sort
+            <select id="sort">
+              <option value="new-first">New results first</option>
+              <option value="listed-desc">Recently listed</option>
+              <option value="year-desc">Newest year</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="mileage-asc">Mileage: low to high</option>
+            </select>
+          </label>
+        </div>
+        <div id="active-filters" class="active-filters"></div>
+        <div id="vehicle-grid" class="vehicle-grid"></div>
+        <p id="empty-state" class="empty-state" hidden>No vehicles match these filters.</p>
+      </section>
+    </section>
+
+    <section class="source-panel">
+      <div>
+        <p class="eyebrow">STATIC SNAPSHOT</p>
+        <h2>Published inventory</h2>
+        <p>This page reads a checked-in JSON snapshot and makes no external inventory requests from your browser.</p>
+      </div>
+      <div id="cache-stats" class="cache-stats"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Independent inventory index. Confirm price, history, equipment, and availability with the dealer.</p>
+    <p id="updated-at"></p>
+  </footer>
+
+  <template id="vehicle-card-template">
+    <article class="vehicle-card">
+      <div class="vehicle-image-wrap">
+        <img class="vehicle-image" alt="" loading="lazy">
+        <span class="condition-badge">Pre-Owned</span>
+        <span class="new-badge" hidden>New today</span>
+      </div>
+      <div class="vehicle-body">
+        <p class="dealer-name"></p>
+        <h3 class="vehicle-title"></h3>
+        <p class="vehicle-subtitle"></p>
+        <div class="vehicle-facts"></div>
+        <div class="history-row"></div>
+        <div class="price-row">
+          <div><small>Listed price</small><strong class="vehicle-price"></strong></div>
+          <div class="listing-actions">
+            <a class="info-link dealer-link" target="_blank" rel="noopener noreferrer">Dealer Site</a>
+            <a class="carfax-link" target="_blank" rel="noopener noreferrer">CARFAX Report</a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="site-v3.js"></script>
+</body>
+</html>

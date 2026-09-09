@@ -1,0 +1,51 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "styles.css"
+      - "inventory-v3.css"
+      - "site-v3.js"
+      - ".nojekyll"
+      - "assets/**"
+      - "data/inventory.json"
+      - "data/site-config.json"
+      - "lib/inventory.js"
+      - "lib/inventory-view-v2.js"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Prepare public site
+        run: |
+          mkdir -p _site/assets _site/data _site/lib
+          cp index.html styles.css inventory-v3.css site-v3.js .nojekyll _site/
+          cp -R assets/. _site/assets/
+          cp data/inventory.json _site/data/
+          cp data/site-config.json _site/data/
+          cp lib/inventory.js lib/inventory-view-v2.js _site/lib/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

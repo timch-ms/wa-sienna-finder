@@ -1,0 +1,37 @@
+{
+  "siteTitle": "WA Sienna Finder",
+  "vehicleName": "Toyota Sienna",
+  "make": "Toyota",
+  "model": "Sienna",
+  "minimumYear": 2022,
+  "queryYearsSeparately": true,
+  "brandMark": "S",
+  "fallbackImage": "assets/vehicle.svg",
+  "dealerOnlyLabel": "Toyota dealers only",
+  "dealerOnlyDescription": "Hide independent and other-brand dealers",
+  "officialDealerNamePatterns": [
+    "Toyota"
+  ],
+  "dealerDomains": [
+    "bellinghamchevy.com",
+    "bmwofspokane.com",
+    "burienchevrolet.com",
+    "dougsmazda.com",
+    "genesisofkirkland.com",
+    "importsandclassics.com",
+    "lithiajeepspokane.com",
+    "mbmotorsllc.com",
+    "rentonkia.com",
+    "seattlefinestmotors.com",
+    "speckchevyprosser.com",
+    "toyotaofbellevue.com",
+    "toyotaofbellingham.com",
+    "toyotaofpuyallup.com",
+    "toyotaofrenton.com",
+    "vwofpuyallup.com"
+  ],
+  "marketplaceDomains": [
+    "autolist.com",
+    "carvana.com"
+  ]
+}
