@@ -4,6 +4,7 @@
   "make": "Toyota",
   "model": "Sienna",
   "minimumYear": 2022,
+  "refreshIntervalDays": 2,
   "maxApiCalls": 10,
   "queryYearsSeparately": true,
   "brandMark": "S",

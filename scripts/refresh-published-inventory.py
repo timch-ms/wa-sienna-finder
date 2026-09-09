@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from datetime import date as calendar_date
 from pathlib import Path
 import importlib.util
 import json
@@ -47,7 +48,13 @@ def set_output(name, value):
 def reserve_refresh(date, state_file=STATE_FILE):
     state = read_json(state_file, {})
     last_attempt = state.get("lastAttemptDate")
-    should_refresh = not last_attempt or last_attempt < date
+    interval_days = server.read_site_config()["refreshIntervalDays"]
+    days_since_attempt = (
+        (calendar_date.fromisoformat(date) - calendar_date.fromisoformat(last_attempt)).days
+        if last_attempt
+        else interval_days
+    )
+    should_refresh = days_since_attempt >= interval_days
     if should_refresh:
         state.update(
             {
@@ -59,7 +66,10 @@ def reserve_refresh(date, state_file=STATE_FILE):
         write_json(state_file, state)
         print(f"Reserved the inventory refresh for {date}.")
     else:
-        print(f"Inventory refresh already attempted on {last_attempt}; no API calls will be made.")
+        print(
+            f"Inventory refresh last attempted on {last_attempt}; the configured "
+            f"{interval_days}-day interval has not elapsed."
+        )
     set_output("should_refresh", should_refresh)
     return should_refresh
 

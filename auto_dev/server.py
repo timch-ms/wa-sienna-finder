@@ -45,6 +45,7 @@ DEFAULT_SITE_CONFIG = {
     "make": "BMW",
     "model": "iX",
     "minimumYear": 2022,
+    "refreshIntervalDays": 1,
     "officialDealerNamePatterns": ["bmw"],
 }
 
@@ -86,6 +87,8 @@ def read_site_config():
         raise ValueError("Site configuration requires a model.")
     if not isinstance(config["minimumYear"], int):
         raise ValueError("Site configuration requires an integer minimumYear.")
+    if not isinstance(config["refreshIntervalDays"], int) or config["refreshIntervalDays"] < 1:
+        raise ValueError("refreshIntervalDays must be a positive integer.")
     patterns = config.get("officialDealerNamePatterns")
     if not isinstance(patterns, list) or not all(isinstance(item, str) for item in patterns):
         raise ValueError("officialDealerNamePatterns must be a list of strings.")

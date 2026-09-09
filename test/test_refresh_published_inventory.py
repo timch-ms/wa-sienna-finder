@@ -79,6 +79,20 @@ class PublishedInventoryRefreshTests(TestCase):
         self.assertFalse(refresh.reserve_refresh("2026-09-09", self.state_file))
         self.assertFalse(refresh.reserve_refresh("2026-09-08", self.state_file))
 
+    def test_reservation_honors_two_day_interval(self):
+        refresh.server.SITE_CONFIG_FILE.write_text(
+            '{"make":"BMW","model":"iX","minimumYear":2022,'
+            '"refreshIntervalDays":2,"officialDealerNamePatterns":["BMW"]}',
+            encoding="utf-8",
+        )
+        refresh.write_json(
+            self.state_file,
+            {"lastAttemptDate": "2026-09-08"},
+        )
+
+        self.assertFalse(refresh.reserve_refresh("2026-09-09", self.state_file))
+        self.assertTrue(refresh.reserve_refresh("2026-09-10", self.state_file))
+
     def test_automated_refresh_allows_up_to_ten_calls(self):
         self.assertEqual(refresh.MAX_CALLS, 10)
 
