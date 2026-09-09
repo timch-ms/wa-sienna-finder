@@ -39,6 +39,9 @@ CANONICAL_DEALERS = {
     "platinum auto sales inc": "Platinum Auto Sales Inc",
     "seattle finest motors llc": "Seattle Finest Motors LLC",
     "swickard toyota": "Swickard Toyota",
+    "volkswagen of kirkland": "Volkswagen of Kirkland",
+    "volkswagen of puyallup": "Volkswagen of Puyallup",
+    "volvo cars bellevue": "Volvo Cars Bellevue",
     "windy chevrolet": "Windy Chevrolet",
 }
 DEFAULT_SITE_CONFIG = {
@@ -161,6 +164,33 @@ def valid_https_url(value):
     return value if isinstance(value, str) and urlparse(value).scheme == "https" else None
 
 
+def normalize_seats(value):
+    try:
+        seats = int(value)
+    except (TypeError, ValueError):
+        return None
+    return seats if 1 <= seats <= 20 else None
+
+
+def normalize_drivetrain(value):
+    normalized = str(value or "").strip().casefold().replace("_", " ").replace("-", " ")
+    if not normalized:
+        return None
+    if (
+        normalized in {"awd", "all wheel drive"}
+        or "all wheel drive" in normalized
+        or "dual motor" in normalized
+    ):
+        return "AWD"
+    if normalized in {"4wd", "4x4", "four wheel drive"} or "four wheel drive" in normalized:
+        return "4WD"
+    if normalized in {"rwd", "rear wheel drive"} or "rear wheel drive" in normalized:
+        return "RWD"
+    if normalized in {"fwd", "front wheel drive"} or "front wheel drive" in normalized:
+        return "FWD"
+    return None
+
+
 def apply_listing_overrides(listings):
     try:
         overrides = json.loads(OVERRIDES_FILE.read_text(encoding="utf-8"))
@@ -229,6 +259,8 @@ def clean_listing(item, config=None):
         len(vin) != 17
         or str(vehicle.get("make", "")).casefold() != config["make"].casefold()
         or str(vehicle.get("model", "")).casefold() != config["model"].casefold()
+        or config.get("bodyStyle")
+        and str(vehicle.get("bodyStyle", "")).casefold() != config["bodyStyle"].casefold()
         or str(retail.get("state", "")).upper() != "WA"
         or retail.get("used") is not True
     ):
@@ -262,6 +294,8 @@ def clean_listing(item, config=None):
         "mileage": mileage,
         "exteriorColor": str(vehicle.get("exteriorColor") or "Not listed").strip(),
         "interiorColor": str(vehicle.get("interiorColor") or "Not listed").strip(),
+        "seats": normalize_seats(vehicle.get("seats")),
+        "drivetrain": normalize_drivetrain(vehicle.get("drivetrain")),
         "dealer": dealer,
         "officialBrandDealer": is_official_brand_dealer(dealer, config),
         "city": str(retail.get("city") or "City not listed").strip(),
@@ -294,6 +328,8 @@ def fetch_page(api_key, page, config=None):
     }
     if config.get("year") is not None:
         parameters["vehicle.year"] = config["year"]
+    if config.get("bodyStyle"):
+        parameters["vehicle.bodyStyle"] = config["bodyStyle"]
     query = urlencode(parameters)
     request = Request(
         f"https://api.auto.dev/listings?{query}",

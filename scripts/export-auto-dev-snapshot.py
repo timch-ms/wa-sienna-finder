@@ -17,6 +17,8 @@ LISTING_FIELDS = {
     "mileage",
     "exteriorColor",
     "interiorColor",
+    "seats",
+    "drivetrain",
     "dealer",
     "officialBrandDealer",
     "city",
